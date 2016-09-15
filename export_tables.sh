@@ -3,8 +3,16 @@
 
 host=""
 db=""
+tab_list=~/tmp/${db}_table.txt
 
-for t in `cat ~/tmp/${db}_table.txt`;
+psql -qAXt -h $host -d $db -c "select
+n.nspname || '.' || '''"' || relname || '"'''
+from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public'
+  and c.relkind = 'r';" > $tab_list
+
+for t in `cat $tab_list`;
 do
   tab=`echo $t | sed "s/\'//g" | sed "s/\"//g"`
   echo $tab' '$t
